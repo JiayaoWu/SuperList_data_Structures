@@ -1,0 +1,86 @@
+Jiayao Wu
+Project3 analysis
+
+Part 2 (all with probability of 50):
+1.d (range 1000, num of op is 10000000):
+Seed = 1, steps = 206591475 
+Seed = 2, steps = 206458734
+Seed = 3, Steps = 206451074
+Seed = 4, steps = 206413668
+Seed = 5, steps = 206628321
+Average of steps = 206508654
+This Means: 206508654 / 10000000 = 21 steps / operation
+
+1.e (range 1000, num of op is 100000000):
+Seed = 1, steps = 2072994006
+Seed = 2, steps = 2074059245
+Seed = 3, Steps = 2075952282
+Seed = 4, steps = 2073228569
+Seed = 5, steps = 2073995307
+Average of steps = 2074045881
+This Means: 2074045881 / 100000000 = 21 steps / operation
+
+
+1.f (range 10000, num of op is 20000000):
+Seed = 1, steps = 562642269
+Seed = 2, steps = 562842248
+Seed = 3, Steps = 563597116
+Seed = 4, steps = 561625795
+Seed = 5, steps = 557958941
+Average of steps = 561733273
+Means: 561733273 / 20000000 = 28 steps/operation
+
+Analyze and explain:
+Let's consider how many steps there will be for update,
+delete and get methods:
+For update method:
+Since the range is N (1000 for example) and there is equal probability of update
+and delete (25%), then the number of unique elements will be N/2 (500 in this case).
+For this part, the probability of upgrading an inserted element is 50%.
+There is equal chance for key exits and key not exist.
+-If the key doesn't exist, we need to traverse the whole list. On average,
+this will be logN (base 2) because sometimes it goes down in the beginning, 
+end or middle somewhere. So on average, it goes down the list in the middle
+which would be "divided by 2" or we can call this binary search. 
+Therefore it's logN.
+-If the key doest exist, on average we still need to traverse the list
+because the key might be in the beginning or end of the list. Same reason
+for logN.
+-Therefore, the total steps for a single update would be:
+2* (0.5*logN + 0.5*logN) = 2 logN 
+I multiplied by 2 here because we are both going down and going
+horizontal in the list. And steps would increment in both cases
+
+The same analysis is true for delete and get, so
+if we take the average of these 3, then it's still 2*log N / operation
+
+What I expected from the above analysis
+For 1.d: 2*log N = 2*log 500 = 18
+For 1.e: 2*log N = 2*log 500 = 18
+For 1.f: 2*log N = 2*log 5000 = 24
+Which are pretty close to what I got
+They don't match perfectly but it's pretty close to what 
+I got.
+
+ 
+
+Part 3:
+1.d with p =25% and p =75%
+p = 25%
+Seed = 1, steps = 176290680
+Seed = 2, steps = 176239593
+Seed = 3, Steps = 176210002
+Seed = 4, steps = 176427819
+Seed = 5, steps = 176513617
+Average of steps = 176336342
+
+p = 75%
+Seed = 1, steps = 371616352
+Seed = 2, steps = 374658719
+Seed = 3, Steps = 372195202
+Seed = 4, steps = 371584689
+Seed = 5, steps = 375071535
+Average of steps = 373025299
+
+
+

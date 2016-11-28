@@ -1,0 +1,160 @@
+Jiayao Wu 
+Project3 design
+
+Program Overview:
+A repository based on Super List data structure in which there are multiple
+lines of records(key, value pair). 
+Each element in the superlist has the following:
+-a pointer to data
+-a key value
+-a number to keep track of how many repeated records for this element there are
+(later need it in print function)
+-a pointer to next and a a down pointer
+
+There are 4 functions: update(insert), delete, get and print.
+-Whenever inserting a record, there is some chance (defined by
+probability) that a record can be promoted to the upper level, thus creating
+mutliple lines. Also, the record is inserted in ascending key order.
+-When deleting a record, need to delete all the records that have the requested key
+because our superlist structure is multiple lines and a single record can appear
+on multiple lines.
+-For get function, it just stores the corresponding data value
+-For print, need to print number of unique records, number of levels, 
+number of records on each level and the records
+
+Should have following global variables:
+number of levels, size (unique records), steps and a sentinel_head pointer
+
+Function overviews:
+1. repository_int (int p)
+set probability to p
+Initialize number of levels to 1, size (num of unique records) to 0
+Also, should malloc space for sentinel_head and initialize its next and down to NULL
+
+
+2. repository_update (int key, int data)
+It inserts the {key,data} pair 
+return 1 if successfully inserted
+return 0 if data was updated
+return -1 if there is no memory allocation (eg: after malloc, but it's
+giving me NULL)
+
+How it works:
+Should have an array of pointers of size equals to the current number of levels
+
+Should have two while loops, the outer-one makes sure it goes down the level and
+the inner one makes sure it goes across the level. 
+Point temp to sentinel head, while temp is not null, go to the second while loop:
+while(temp->next != null),then:
+-if this key is larger than the temp->next->key, then point temp to next. 
+-If temp.next.key is larger than this key, store temp to a array of pointers. Then point
+temp to down element. Doing so because we are sure we can't find this key on this level
+-else, if the key are equal, then update the data by dereferencing temp->next->data and return 0
+
+After the two while loops, we already have an array of pointers and have reached the
+bottom level. 
+So, then make a do-while loop that only upgrade the record further up if rand100()<=probability.
+-Inside the do-while loop, malloc space for pelement (the one to be inserted) and malloc space
+for data only if we are at the bottom level because we are only allowed to store one copy of the data. 
+Need to check memory allocation here. Then insert it after the corresponding pointer in the array. 
+(same procedure as project 2)
+-If we are not at the bottom level, then just point to the data pointer to the previously 
+inserted record's data
+-If we need to create a new level, then should malloc space for a new header and point
+new header->down to current sentinel_node and point sentinel_node to the new header.
+Then insert pelement after the new sentinel_node. Thus, creating a new level.
+Also, increment number of levels in the end.
+Also, each time we insert this element, should increment the number of repeated records (for
+print method use)
+Outside the do-while loop, increment the size and return 1.
+
+-My decicison:
+In my array of pointers, the position 0 is for bottom level and positon numOflevels -1 is
+for the most top level. So, when actually inserting the element, should use array[0] first
+then increment the position if we need to insert the element on above levels.
+
+
+3. repository_delete (int key)
+Should delete all the records that have this key.
+Return 1 if key was found and succesfully deleted
+return 0 if key was not found
+
+How it works:
+Use the same traversal technique (2 nested while loops) as update method.
+Except that when key was found, there are two cases:
+-One is that we need to delete the whole level beacuse there are only a sentinel_node and
+the element we want to delete on this level. In this case, free the element first and 
+point sentinel_node down to the next sentinel_node, then finally free the sentinel_node.
+Decrement the number of levels afterwards.
+-Another case is that we only need to delete this element only, just free it as in project 2.
+After these two cases, should point temp down to the next level because there is chance
+that this element will appear on the next level as well.
+Here is an edge case: we can't delete the bottom level sentinel_node
+
+Furthermore, in order to see if we have successfully deleted the element, set a variable and
+initialize to 0. Whenever we run into one of the above 2 cases, set variable to 1.
+After the 2 while loops, if this variable is 1, this means we have deleted it. Then 
+decrement the size and return 1. Otherwsie, return 0.
+
+
+
+4. repository_get(int key, int *data)
+Store a copy of the data if such key is found.
+Return 1 if the record was found and 0 if not
+
+How it works:
+Use the same traversal technique (2 while loops) as update method.
+Except that, when key = temp->next->key, should store a copy of that data into *data.
+Also, once found that key, there is no need to traverse the list anymore even if this record
+would appear multiple times in the superlist because all the data of this element 
+is pointing to the same data.
+Return 0 outside the 2 while loops.
+
+
+5. repository_print(int print_elements)
+Should print number of levels, number of unique records, number of records on each level
+and the list itself if needed
+
+How it works:
+Since I didn't keep track of the number of records on each level in my previous methods, 
+I decided to count it here in the print method by making an integer array of size numOfLevels.
+Use a for and while loop together to traverse the list: the for loop controls how many
+levels I need to traverse and while loop controls reading till the end of the level
+(ie: while temp->next != NULL) 
+Each time inside the while loop, should increament the array[i] where i corresponds to which
+level we are at now, so we can get how many records there are on each line
+
+The next issue is to print the records:
+Two cases:
+-if print_elements is 1, then go to the bottom level of the list and print the {key, value} pairs
+on this line since they are all unique by using a while loop (temp->next != NULL) to traverse it
+-if print_elements is 2, need to print the whole list that mimics the structure of the superlist.
+(following is how to achieve the second case):
+I decided to flip the list from horizontal to vertical since that easier:
+Go to the bottom level first, then print out the {key,value} pair of temp->next
+multiple times depending on the number of repeated records this element has. Then
+output a new line and move temp to next element and do the same thing over and over again
+till temp->next == NULL
+For example: the orginal list should be like:
+2,3 
+2,3 4,5
+2,3 4,5 7,8
+
+Then my print output would be like:
+2,3 2,3 2,3
+4,5 4,5
+7,8
+
+
+
+Edge cases:
+1. When deleting, if there is only the bottom level left and there is only one element which
+is the one should be deleted on that level, then we can't delete the sentinel head
+2. When inserting, there is only a sentinel_head
+3. When inserting, need to consider how to create a new level if needed
+
+Hard for me to come up with:
+Initially I had all sentinel_head as declared not dynamic memory, this causes trouble
+in getting my output correct.
+It was also confusing to figure out how to print the records that mimic the structure 
+of the superlist 
